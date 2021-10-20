@@ -1,22 +1,21 @@
-import { binarySearch, exclude, indexFrom } from "./helpers";
+import { exclude, indexFrom } from "./helpers";
 
 export type Positioned<T> = T & { position: number };
 
 export class SortedPayloadedList<T, P> {
-  private data: Record<string, Positioned<P>> = {};
+  private data: Map<T, Positioned<P>> = new Map();
   private list: T[] = [];
 
   constructor(private sortBy: string) {}
 
   add(value: T, cb: (data: P | undefined) => P) {
-    const payload: Positioned<P> | undefined = this.data[String(value)];
+    const payload = this.data.get(value);
     const position = payload?.position;
     const assignedData = cb(payload);
     const sortPayloadKey = (assignedData as any)[this.sortBy];
     const firstHigherIndex = indexFrom<any>(
       this.list,
-      (v) =>
-        this.data[v] && (this.data[v] as any)[this.sortBy] > sortPayloadKey,
+      (v) => this.data[v] && this.data.get(v)[this.sortBy] > sortPayloadKey,
       position ? position : this.list.length - 1
     );
 
@@ -28,16 +27,21 @@ export class SortedPayloadedList<T, P> {
 
     this.list.splice(nextPosition, 0, value);
 
-    this.data[String(value)] = {
+    this.data.set(value, {
       ...assignedData,
       position: nextPosition,
-    };
+    });
   }
 
-  slice(from: number, to: number): [T, P][] {
-    return this.list
-      .slice(from, to)
-      .map((v) => [v, exclude(this.data[String(v)], "position")]);
+  slice(from: number, to: number): Map<T, P> {
+    const listOfData = new Map();
+
+    for (let i = from; i < to; i++) {
+      const element = this.list[i];
+      listOfData.set(element, this.data.get(element));
+    }
+
+    return listOfData;
   }
 
   size() {
@@ -46,6 +50,6 @@ export class SortedPayloadedList<T, P> {
 
   clear() {
     this.list = [];
-    this.data = {};
+    this.data = new Map();
   }
 }

@@ -16,26 +16,6 @@ export const fromLong = (ipl: number): string =>
   "." +
   (ipl & 255);
 
-export const binarySearch = <T>(arr: T[], value: T) => {
-  let start = 0,
-    end = arr.length - 1;
-
-  // Iterate while start not meets end
-  while (start <= end) {
-    // Find the mid index
-    let mid = Math.floor((start + end) / 2);
-
-    // If element is present at mid, return True
-    console.log(mid, arr[mid], value);
-    if (arr[mid] === value) return mid;
-    // Else look in left or right half accordingly
-    else if (arr[mid] < value) start = mid + 1;
-    else end = mid - 1;
-  }
-
-  return -1;
-};
-
 export const indexFrom = <T>(
   arr: T[],
   comp: (v: T, index: number) => boolean,
@@ -58,3 +38,12 @@ export const exclude = (obj: any, key: string) => {
   const { [key]: _, ...other } = obj;
   return other;
 };
+
+export const measurement =
+  (cb: any) =>
+  (...args: any[]) => {
+    console.time("performance");
+    const result = cb(...args);
+    console.timeEnd("performance");
+    return result;
+  };
