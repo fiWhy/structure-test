@@ -21,4 +21,4 @@ Array(1000000)
   .fill(1)
   .forEach(() => request_handled(`192.168.0.${getRandomInt(0, 400)}`));
 
-console.log(list.slice(0, 100));
+console.log(top100());
